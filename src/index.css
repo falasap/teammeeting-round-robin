@@ -1,0 +1,77 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* Ensure FxLayout takes full height */
+#root > div {
+  width: 100%;
+  height: 100%;
+}
+
+/* Make the side navigation full height - comprehensive approach */
+nav,
+[role="navigation"],
+aside,
+[data-fx-side-navigation],
+nav[class*="side-navigation"],
+nav[class*="Side"],
+nav[class*="Navigation"],
+[class*="SideNavigation"],
+[data-fx-layout] > nav,
+[data-fx-layout] nav:first-child,
+[data-fx-layout] > div > nav,
+[data-fx-layout] aside {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+/* Ensure FxLayout itself is full height */
+[data-fx-layout] {
+  height: 100vh !important;
+  min-height: 100vh !important;
+}
+
+/* Make the start pane (spaces column) narrower by default */
+:root {
+  --fx-layout-start-width: 240px;
+}
+
+[data-fx-layout] [data-fx-pane="start"],
+[data-fx-pane="start"] {
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 400px !important;
+  flex: 0 0 240px !important;
+}
+
