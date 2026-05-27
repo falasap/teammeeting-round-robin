@@ -128,7 +128,7 @@ function App() {
         borderRadius: '16px'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <Title level="1" style={{ marginBottom: '8px', color: 'var(--color-brand-purple)' }}>
+          <Title level="H1" style={{ marginBottom: '8px', color: 'var(--color-brand-purple)' }}>
             Team Meeting Round Robin
           </Title>
           <div style={{ fontSize: '14px', color: 'var(--color-neutral-600)' }}>
@@ -241,7 +241,7 @@ function App() {
         }}>
           <Button
             icon={isRunning ? <Pause size={20} /> : <Play size={20} />}
-            design="Emphasized"
+            design="Primary"
             onClick={handleStartPause}
           >
             {isRunning ? 'Pause' : 'Start Timer'}
