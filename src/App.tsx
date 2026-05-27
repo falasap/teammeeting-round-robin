@@ -10,6 +10,7 @@ const TEAM_MEMBERS = [
   'Anita',
   'Antonio',
   'Bela',
+  'Burak',
   'Eric',
   'Fabian',
   'Khalid',
