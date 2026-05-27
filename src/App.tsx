@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button, Card, Title, Tag } from '@sap-ui/fx-components'
-import { Play, Pause, SkipForward, User, Clock, Share2 } from 'lucide-react'
+import { Play, Pause, SkipForward, User, Clock } from 'lucide-react'
 
 // Team members in alphabetical order
 const TEAM_MEMBERS = [
@@ -80,23 +80,6 @@ function App() {
     return () => channel.close()
   }, [])
 
-  // Check URL for shared state on initial load
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const sharedIndex = params.get('index')
-    if (sharedIndex !== null) {
-      const index = parseInt(sharedIndex, 10)
-      if (!isNaN(index) && index >= 0 && index < TEAM_MEMBERS.length) {
-        setCurrentIndex(index)
-        setTimeLeft(TIMER_DURATION)
-        setIsRunning(false)
-        setHasPlayedSound(false)
-        // Clear URL parameter after loading
-        window.history.replaceState({}, '', window.location.pathname)
-      }
-    }
-  }, [])
-
   // Play sound when timer reaches 0
   useEffect(() => {
     if (timeLeft === 0 && !hasPlayedSound) {
@@ -135,14 +118,6 @@ function App() {
     setTimeLeft(TIMER_DURATION)
     setIsRunning(false)
     setHasPlayedSound(false)
-  }, [currentIndex])
-
-  const copyShareLink = useCallback(() => {
-    const url = new URL(window.location.href)
-    url.searchParams.set('index', currentIndex.toString())
-    navigator.clipboard.writeText(url.toString())
-      .then(() => alert('Link copied! Share this link with your team to sync the current presenter.'))
-      .catch(() => alert('Failed to copy link'))
   }, [currentIndex])
 
   const handleStartPause = useCallback(() => {
@@ -298,14 +273,6 @@ function App() {
             onClick={handleSkip}
           >
             Skip to Next
-          </Button>
-
-          <Button
-            icon={<Share2 size={20} />}
-            onClick={copyShareLink}
-            design="Secondary"
-          >
-            Share
           </Button>
         </div>
 
