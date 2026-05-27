@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button, Card, Title, Tag } from '@sap-ui/fx-components'
-import { Play, Pause, SkipForward, User, Clock } from 'lucide-react'
+import { Play, Pause, SkipForward, User, Clock, Share2 } from 'lucide-react'
 
 // Team members in alphabetical order
 const TEAM_MEMBERS = [
@@ -27,8 +27,6 @@ const TEAM_MEMBERS = [
 
 const TIMER_DURATION = 5 * 60 // 5 minutes in seconds
 const STORAGE_KEY = 'teammeeting-round-robin-state'
-const GIST_URL = 'https://api.github.com/gists/YOUR_GIST_ID_HERE'
-const POLL_INTERVAL = 5000 // Poll every 5 seconds
 
 interface AppState {
   currentIndex: number
@@ -82,42 +80,21 @@ function App() {
     return () => channel.close()
   }, [])
 
-  // Poll for updates from GitHub Gist (cross-user sync)
+  // Check URL for shared state on initial load
   useEffect(() => {
-    if (GIST_URL === 'https://api.github.com/gists/YOUR_GIST_ID_HERE') {
-      // Skip polling if Gist is not configured
-      return
-    }
-
-    const pollGist = async () => {
-      try {
-        const response = await fetch(GIST_URL)
-        const data = await response.json()
-        const content = data.files['state.json'].content
-        const state: AppState = JSON.parse(content)
-
-        // Only update if the remote state is newer
-        const localState = localStorage.getItem(STORAGE_KEY)
-        if (localState) {
-          const local: AppState = JSON.parse(localState)
-          if (new Date(state.lastUpdated) > new Date(local.lastUpdated)) {
-            setCurrentIndex(state.currentIndex)
-            setTimeLeft(TIMER_DURATION)
-            setIsRunning(false)
-            setHasPlayedSound(false)
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch state:', error)
+    const params = new URLSearchParams(window.location.search)
+    const sharedIndex = params.get('index')
+    if (sharedIndex !== null) {
+      const index = parseInt(sharedIndex, 10)
+      if (!isNaN(index) && index >= 0 && index < TEAM_MEMBERS.length) {
+        setCurrentIndex(index)
+        setTimeLeft(TIMER_DURATION)
+        setIsRunning(false)
+        setHasPlayedSound(false)
+        // Clear URL parameter after loading
+        window.history.replaceState({}, '', window.location.pathname)
       }
     }
-
-    // Poll every 5 seconds
-    const interval = setInterval(pollGist, POLL_INTERVAL)
-    pollGist() // Initial poll
-
-    return () => clearInterval(interval)
   }, [])
 
   // Play sound when timer reaches 0
@@ -152,40 +129,20 @@ function App() {
     return () => clearInterval(interval)
   }, [isRunning])
 
-  const handleSkip = useCallback(async () => {
+  const handleSkip = useCallback(() => {
     const nextIndex = (currentIndex + 1) % TEAM_MEMBERS.length
     setCurrentIndex(nextIndex)
     setTimeLeft(TIMER_DURATION)
     setIsRunning(false)
     setHasPlayedSound(false)
+  }, [currentIndex])
 
-    // Update GitHub Gist if configured
-    if (GIST_URL !== 'https://api.github.com/gists/YOUR_GIST_ID_HERE') {
-      const state: AppState = {
-        currentIndex: nextIndex,
-        lastUpdated: new Date().toISOString(),
-      }
-
-      try {
-        // Note: This requires a GitHub token in production
-        // For now, this will fail silently but local sync will still work
-        await fetch(GIST_URL, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            files: {
-              'state.json': {
-                content: JSON.stringify(state, null, 2)
-              }
-            }
-          })
-        })
-      } catch (error) {
-        console.error('Failed to update Gist:', error)
-      }
-    }
+  const copyShareLink = useCallback(() => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('index', currentIndex.toString())
+    navigator.clipboard.writeText(url.toString())
+      .then(() => alert('Link copied! Share this link with your team to sync the current presenter.'))
+      .catch(() => alert('Failed to copy link'))
   }, [currentIndex])
 
   const handleStartPause = useCallback(() => {
@@ -341,6 +298,14 @@ function App() {
             onClick={handleSkip}
           >
             Skip to Next
+          </Button>
+
+          <Button
+            icon={<Share2 size={20} />}
+            onClick={copyShareLink}
+            design="Secondary"
+          >
+            Share
           </Button>
         </div>
 
