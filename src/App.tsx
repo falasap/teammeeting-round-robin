@@ -21,7 +21,7 @@ const TEAM_MEMBERS = [
   'Robin',
   'Scott',
   'Suja',
-  'Szuzsa',
+  'Zita',
   'Zsuzsa',
 ].sort()
 
